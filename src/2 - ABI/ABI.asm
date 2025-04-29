@@ -101,41 +101,147 @@ alternate_sum_4_using_c_alternative:
 alternate_sum_8:
 	;prologo
 
-	; COMPLETAR
+	push rbp
+  mov rbp,rsp
 
+  ; resta x1 - x2
+  sub edi,esi
+  
+  ;resta x3 - x4
+  sub edx, ecx
+
+  ;resta x5 - x6
+  sub r8d,r9d
+
+  ; ahora rdi <-- x1 -x2 +x3 -x4
+  add edi, edx
+
+  ;sumo x1 - x2 + x3 -x4 +x5 -x6
+  add edi, r8d
+
+
+; traigo la los datos en la pila 
+  mov esi, dword[rbp+16] ; en el stack estan packed 
+ 
+  mov r8d, dword[rbp+24]
+
+  sub esi,r8d
+  ; sumo lo que queda
+  add edi, esi
+
+  mov eax, edi
 	;epilogo
+  pop rbp
 	ret
 
 
 ; SUGERENCIA: investigar uso de instrucciones para convertir enteros a floats y viceversa
 ;void product_2_f(uint32_t * destination, uint32_t x1, float f1);
-;registros: destination[?], x1[?], f1[?]
+;registros: destination[rdi], x1[rsi], f1[xmm0]
 product_2_f:
-	ret
+  ;epilogo
+  push rbp
+  mov rbp,rsp
 
+  cvtsi2ss xmm1,esi
+  mulss  xmm1,xmm0
+  cvtss2si esi, xmm1
 
+  mov dword[rdi], esi
+
+  pop rbp
+  ret
+
+product_9_f:
 ;extern void product_9_f(double * destination
 ;, uint32_t x1, float f1, uint32_t x2, float f2, uint32_t x3, float f3, uint32_t x4, float f4
 ;, uint32_t x5, float f5, uint32_t x6, float f6, uint32_t x7, float f7, uint32_t x8, float f8
 ;, uint32_t x9, float f9);
 ;registros y pila: destination[rdi], x1[?], f1[?], x2[?], f2[?], x3[?], f3[?], x4[?], f4[?]
-;	, x5[?], f5[?], x6[?], f6[?], x7[?], f7[?], x8[?], f8[?],
-;	, x9[?], f9[?]
-product_9_f:
+;	, x5[?], f5[?], x6[?], f6[?], x7[?], f7[?], x8[], f8[?],
+;	, x9[rbp+32], f9[rbp+16]
 	;prologo
-	push rbp
+  push rbp
 	mov rbp, rsp
 
-	;convertimos los flotantes de cada registro xmm en doubles
-	; COMPLETAR
 
-	;multiplicamos los doubles en xmm0 <- xmm0 * xmm1, xmmo * xmm2 , ...
-	; COMPLETAR
+	;convertimos los flotantes de cada registro xmm en doubles
+	cvtss2sd xmm0, xmm0
+  cvtss2sd xmm1, xmm1
+  cvtss2sd xmm2, xmm2
+  cvtss2sd xmm3, xmm3
+  cvtss2sd xmm4, xmm4
+  cvtss2sd xmm5,xmm5
+  cvtss2sd xmm6,xmm6
+  cvtss2sd xmm7,xmm7
+;buscamos a f9 que esta en la pila, lo paso a double, lo guardo nuevamente
+
+  ;multiplicamos los doubles en xmm0 <- xmm0 * xmm1, xmmo * xmm2 , ...
+  ; xmm0= xmm0*xmm1
+	mulsd xmm0,xmm1
+  ; xmm2= xmm2*xmm3
+  mulsd xmm0, xmm2
+; xmm4= xmm4*xmm5
+  mulsd xmm0,xmm3
+; xmm6= xmm6*xmm7
+  mulsd xmm0,xmm4
+  mulsd xmm0,xmm5
+
+; xmm0= xmm0*xmm1*xmm2*xmm3
+  mulsd xmm0,xmm6
+; xmm4= xmm4*xmm5*xmm6*xmm7
+  mulsd xmm0, xmm7
+
+  ;xmm0= xmm0*xmm1*xmm2*xmm3*xmm4*xmm5*xmm6*xmm7
+  ;pxor xmm1,xmm1
+  movsd xmm1, [rbp+48]; f9
+  cvtss2sd xmm1,xmm1
+  mulsd xmm0, xmm1
+
+  ;libere todos los xmm1 a xmm8
 
 	; convertimos los enteros en doubles y los multiplicamos por xmm0.
 	; COMPLETAR
+  ;pxor xmm1,xmm1
+  ;pxor xmm2, xmm2
+  ;pxor xmm3, xmm3
+  ;pxor xmm4,xmm4
+  ;pxor xmm5,xmm5
+  ;pxor xmm7,xmm7
+  ;pxor xmm6,xmm6
+
+  cvtsi2sd xmm1, esi
+  cvtsi2sd xmm2, edx
+  cvtsi2sd xmm3, ecx
+  cvtsi2sd xmm4, r8d
+  cvtsi2sd xmm5, r9d
+  cvtsi2sd xmm6, dword[rbp+16]; x6 
+  cvtsi2sd xmm7, dword[rbp+24]; x7
+
+  ; ahora multiplico los enteros pasados a double
+  mulsd xmm1,xmm2
+  mulsd xmm1,xmm3
+ mulsd xmm1, xmm4
+ mulsd xmm1,xmm5
+ mulsd xmm1,xmm6
+ mulsd xmm1,xmm7
+
+ cvtsi2sd xmm2, dword[rbp+32]; x8
+ cvtsi2sd xmm3, dword[rbp+40]; x9
+
+ mulsd xmm1,xmm2
+ mulsd xmm1, xmm3
+
+;(xmm8 a xmm15 hay problemas)
+
+
+  ;float(f1-f9) * (entero x1-x9)
+  mulsd xmm0,xmm1
+;paso el double al puntero
+ movsd [rdi], xmm0
 
 	; epilogo
+
 	pop rbp
 	ret
 
