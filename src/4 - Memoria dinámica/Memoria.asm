@@ -60,28 +60,28 @@ strCmp:
 strClone:
  push rbp
  mov rbp, rsp
- push r12						; contador
+ push r12						
  push r13						; r13 = len del string 
- push r14						; Muevo el tope de la pila para guardar rdi y 8 bytes + para alinear
+ push r14						
  push r15						; puntero a la nueva memoria
  push rbx
-
- mov r14, rdi					; rbx= el puntero del string 
+ sub rsp,8						; ALINEADO	
+ mov r14, rdi					; r14= el puntero del string 
 
  ; rdi sigue siendo el puntero
  call strLen						; Obteniene la longitud del string 
- mov r13, rax							; preserva rax, contiene la longitud del  string 
- add r13, 1							; Sumamos el caracter nulo
+ mov r13d, eax							; preserva rax, contiene la longitud del  string 
+ add r13d, 1							; Sumamos el caracter nulo
  
- ;Calcula el espacio que tendra la memoria 
- mov rdi, r13						; Son bytes entonces long(a)=espacio_de_mem_en_bytes
+ ;Calcula el espacio que tendra el nuevo array
+ mov edi, r13d						; Son bytes, string*1
  call malloc						; rax= puntero se encuentra 
  
 
  mov r15, rax						; r15 = puntero a la nueva mem
- mov rbx, rax
+ mov rbx, rax						;rbx = puntero a la nueva mem
 ; Copia byte a byte
- .ciclo:
+.ciclo:
 	cmp r13, 0
 	je .fin
 
@@ -92,17 +92,16 @@ strClone:
 	dec r13
 	jmp .ciclo
 
- .fin:
-		;mov byte [r15], 0    ; Añade el carácter nulo de terminación
-		mov rax, rbx
-
-		pop rbx
- 		pop r15
-		pop r14
-		pop r13
-		pop r12
- 		pop rbp
-		ret
+.fin:
+	mov rax, rbx				; devuelvo el puntero del nuevo string
+	add rsp,8
+	pop rbx
+ 	pop r15
+	pop r14
+	pop r13
+	pop r12
+ 	pop rbp
+	ret
 
 ; void strDelete(char* a)
 strDelete:
