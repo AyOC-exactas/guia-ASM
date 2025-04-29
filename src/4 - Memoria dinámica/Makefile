@@ -10,25 +10,25 @@ C_OBJS := Memoria_c.o
 ASM_OBJS := Memoria_asm.o Memoria_c.o
 ABI_OBJS := Memoria_abi.o abi_enforcer_regsave.o Memoria_c.o
 
-tester: tester.c $(ASM_OBJS)
+tester: tester.o $(ASM_OBJS)
 	$(CC) $(CFLAGS) $^ -o $@
 
-main: main.c $(ASM_OBJS)
+main: main.o $(ASM_OBJS)
 	$(CC) $(CFLAGS) $^ -o $@
 
-abi_enforcer_tester: tester.c $(ABI_OBJS)
+abi_enforcer_tester: tester.o $(ABI_OBJS)
 	$(CC) $(CFLAGS) -DWITH_ABI_ENFORCER=1 $^ -o $@
 
-abi_enforcer_main: main.c $(ABI_OBJS)
+abi_enforcer_main: main.o $(ABI_OBJS)
 	$(CC) $(CFLAGS) -DWITH_ABI_ENFORCER=1 $^ -o $@
 
-tester.o: tester.c Memoria.h test-utils.h
+tester.o: tester.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-main.o: main.c Memoria.h test-utils.h
+main.o: main.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-Memoria_c.o: Memoria.c Memoria.h
+Memoria_c.o: Memoria.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 Memoria_asm.o: Memoria.asm

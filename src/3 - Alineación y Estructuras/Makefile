@@ -12,24 +12,25 @@ C_OBJS := Estructuras_c.o
 ASM_OBJS := Estructuras_asm.o Estructuras_c.o
 ABI_OBJS := Estructuras_abi.o abi_enforcer_regsave.o Estructuras_c.o
 
-tester: tester.c $(ASM_OBJS)
+tester: tester.o $(ASM_OBJS)
 	$(CC) $(CFLAGS) $^ -o $@
 
-main: main.c $(ASM_OBJS)
+main: main.o $(ASM_OBJS)
 	$(CC) $(CFLAGS) $^ -o $@
 
-abi_enforcer_tester: tester.c $(ABI_OBJS)
+abi_enforcer_tester: tester.o $(ABI_OBJS)
 	$(CC) $(CFLAGS) -DWITH_ABI_ENFORCER=1 $^ -o $@
 
-abi_enforcer_main: main.c $(ABI_OBJS)
+abi_enforcer_main: main.o $(ABI_OBJS)
 	$(CC) $(CFLAGS) -DWITH_ABI_ENFORCER=1 $^ -o $@
-tester.o: tester.c Estructuras.h test-utils.h
+
+tester.o: tester.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-main.o: main.c Estructuras.h test-utils.h
+main.o: main.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
-Estructuras_c.o: Estructuras.c Estructuras.h
+Estructuras_c.o: Estructuras.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 Estructuras_asm.o: Estructuras.asm

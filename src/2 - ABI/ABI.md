@@ -244,8 +244,8 @@ Para ejecutar un programa con GDB basta con escribir 'gdb' antes del nombre del 
 En este caso, compilaremos y exploraremos `main.c`
 
 ``` shell
-  $ make ABI
-  $ gdb ./ABI
+  $ make main
+  $ gdb ./main
 ```
 Veremos un texto similar a este en la consola:
 
