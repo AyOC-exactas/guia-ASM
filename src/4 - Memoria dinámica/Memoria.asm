@@ -65,7 +65,8 @@ strClone:
  push r14						; Muevo el tope de la pila para guardar rdi y 8 bytes + para alinear
  push r15						; puntero a la nueva memoria
  push rbx
- mov rbx, rdi					; rbx= el puntero del string 
+
+ mov r14, rdi					; rbx= el puntero del string 
 
  ; rdi sigue siendo el puntero
  call strLen						; Obteniene la longitud del string 
@@ -76,25 +77,26 @@ strClone:
  mov rdi, r13						; Son bytes entonces long(a)=espacio_de_mem_en_bytes
  call malloc						; rax= puntero se encuentra 
  
- mov r15, rax						; r15 = puntero a la nueva mem
 
+ mov r15, rax						; r15 = puntero a la nueva mem
+ mov rbx, rax
 ; Copia byte a byte
  .ciclo:
-	cmp r13,1
+	cmp r13, 0
 	je .fin
 
-	mov r12b, byte[rbx]
+	mov r12b, byte[r14]
 	mov byte[r15], r12b
-	inc rbx
+	inc r14
 	inc r15
 	dec r13
 	jmp .ciclo
 
+ .fin:
+		;mov byte [r15], 0    ; Añade el carácter nulo de terminación
+		mov rax, rbx
 
-
-	.fin:
-		mov byte [r15], 0    ; Añade el carácter nulo de terminación
- 		pop rbx
+		pop rbx
  		pop r15
 		pop r14
 		pop r13
@@ -114,8 +116,9 @@ strPrint:
 ; uint32_t strLen(char* a)
 strLen:
  push rbp
- push r12
  mov rbp, rsp
+ push r12
+ sub rsp, 8
  xor eax, eax			; inicializo contador
  mov r12, rdi
  .ciclo:
@@ -130,6 +133,7 @@ strLen:
 	jmp .ciclo
 	 
  .fin:
+	add rsp, 8
  	pop r12
  	pop rbp
 	ret
