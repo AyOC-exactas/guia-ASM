@@ -24,6 +24,7 @@ utilizar en nuestro programa
 #include <stdbool.h> //contiene las definiciones de datos booleanos, true (1), false (0)
 #include <unistd.h>  //define constantes y tipos standard, NULL, R_OK, F_OK, STDIN_FILENO, STDOUT_FILENO, STDERR_FILENO...
 #include <assert.h>  //provee la macro assert que evalúa una condición, y si no se cumple provee información diagnóstica y aborta la ejecución
+
 #include "structs.h" //define estructuras de datos de los ejercicios
 
 //*************************************

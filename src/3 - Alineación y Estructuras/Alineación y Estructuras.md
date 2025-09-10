@@ -142,7 +142,7 @@ Como se comenta brevemente en `Introduccion.md`, las etiquetas son directivas de
 # Ejercicios
 
 Pongamos en práctica lo que acabamos de ver. Vamos a usar dos estructuras muy similares a lista\char_t de la clase anterior y vamos a implementar en ASM la función que contaba la cantidad total de elementos de la lista, para ambas estructuras. Pueden encontrar el código necesario en `Estructuras.c` y `Estructuras.asm`.
-Las definiciones de las estructuras las pueden encontrar en el archivo `Estructuras.h`.
+Las definiciones de las funciones las pueden encontrar en el archivo `Estructuras.h`, y las definiciones de los structs están en `structs.h`.
 
 Programen en assembly las funciones:
 
