@@ -62,7 +62,7 @@ TEST(test_product_2_f) {
 
 		uint32_t result = -1;
 		TEST_CALL_V(product_2_f, &result, x[0], f[0]);
-		TEST_ASSERT_EQUALS(uint32_t, x[0]*f[0], result);
+		TEST_ASSERT_EQUALS(uint32_t, x[0]*(float)f[0], result);
 	}
 }
 
