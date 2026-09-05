@@ -75,14 +75,16 @@ funcion_que_recorre:
   XOR R8, R8 ;usamos R8 como índice en el array
   
   .ciclo:
-    mov RDX, [RDI + R8 * 16 + 0]
-    ;16 es el tamaño del struct, por eso lo usamos para escalar el índice 
+    mov RAX, 16 ;16 es el tamaño del struct, por eso lo usamos para escalar el índice 
+    mul R8 ; RAX * R8 queda resultado en RAX (ver documentación de instrucción mul)
+
+    mov RDX, [RDI + RAX + 0]
     ;0 es el offset del atributo nombre, así que tengo en RDX el valor del atributo nombre del alumno de índice R8
     
-    mov CL, BYTE [RDI + R8 * 16 + 8] 
+    mov CL, BYTE [RDI + RAX + 8] 
     ; tengo en el byte mas bajo de RCX el atributo comision
     
-    mov R9D, DWORD [RDI + R8 * 16 + 12] 
+    mov R9D, DWORD [RDI + RAX + 12] 
     ; tengo en los 32 bits menos significativos de R9 el valor del atributo dni
 
     INC R8 ;avanzo el índice del array
@@ -93,7 +95,6 @@ funcion_que_recorre:
   pop RBP ;pila desalineada, RBP restaurado, RSP apuntando a la dirección de retorno
   ret
 ```
-
 Esta función recorre el array y lee los atributos de cada elemento. Imaginemos que luego, como es natural, tenemos la necesidad de modificar la definición del struct, por ejemplo le agregamos `__attribute__((packed))` porque precisamos ahorrar memoria e intercambiamos el orden de los atributos `comision` y `dni` (así nos queda como alumno3 en el ejemplo anterior). Ahora `funcion_que_recorre` ya no va a andar correctamente, los offsets que usamos no son los correctos y tenemos que actualizarlos en cada lugar que se usan. Acá es fácil ver y reconocer qué número corresponde a qué offset y actualizarlo, pero en un escenario más realista estaríamos trabajando con varias estructuras distintas a la vez, y algunos de sus offsets van a coincidir sin tener relación alguna. Hay muchas chances de meter la pata y pasarla muy mal. La solución: definir etiquetas para los offsets.
 
 ``` ASM
@@ -118,14 +119,16 @@ funcion_que_recorre:
   XOR R8, R8 ;usamos R8 como índice en el array
   
   .ciclo:
-    mov RDX, [RDI + R8 * ALUMNO_SIZE + OFFSET_NOMBRE]
-    ;ALUMNO_SIZE es el tamaño del struct, por eso lo usamos para escalar el índice 
+    mov RAX, ALUMNO_SIZE ;ALUMNO_SIZE es el tamaño del struct, por eso lo usamos para escalar el índice 
+    mul R8 ; RAX * R8 queda resultado en RAX (ver documentación de instrucción mul)
+
+    mov RDX, [RDI + RAX + OFFSET_NOMBRE]
     ;OFFSET_NOMBRE es el offset del atributo nombre, así que tengo en RDX el valor del atributo nombre del alumno de índice R8
     
-    mov CL, BYTE [RDI + R8 * ALUMNO_SIZE + OFFSET_COMISION] 
+    mov CL, BYTE [RDI + RAX + OFFSET_COMISION] 
     ; tengo en el byte mas bajo de RCX el atributo comision
     
-    mov R9D, DWORD [RDI + R8 * ALUMNO_SIZE + OFFSET_DNI] 
+    mov R9D, DWORD [RDI + RAX + OFFSET_DNI] 
     ; tengo en los 32 bits menos significativos de R9 el valor del atributo dni
 
     INC R8 ;avanzo el índice del array
@@ -138,6 +141,9 @@ funcion_que_recorre:
 ```
 
 Como se comenta brevemente en `Introduccion.md`, las etiquetas son directivas del preprocesador. No forman parte del programa final, sino que se hace un reemplazo de las etiquetas por sus valores en todo el archivo antes de ensamblar. Ahora podemos modificar la definición del struct y actualizar sólo las etiquetas, con la seguridad de que no se nos va a escapar ningún caso y el código va a funcionar correctamente. Además hace que el código sea más declarativo y legible, win win.
+
+> [!NOTE]
+> Para pensar: ¿Por qué se escala el índice al comienzo del ciclo y no se hace `[RDI + R8*ALUMNO_SIZE + OFFSET]`?.
 
 # Ejercicios
 
